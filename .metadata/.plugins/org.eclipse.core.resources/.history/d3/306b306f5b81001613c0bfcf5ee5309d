@@ -1,0 +1,31 @@
+package com.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.ws.rs.*;
+
+import com.incture.SendLink;
+
+@Path("SendLinkMail")
+public class SendMailService {
+
+	@POST
+	@Path("MailService")
+	public String MailService(SendLink obj)
+	{
+		new OtpService().sendOTPEmail( obj.getEmailid(),obj.getUrl());
+		return "true";
+	}
+	@GET
+	@Path("ReadMail")
+	public List<SendLink> readMail()
+	{
+		List<SendLink> obj=new ArrayList<SendLink>();
+		SendLink ob=new SendLink();
+		ob.setEmailid("internal.sure@gmail.com");
+		ob.setUrl("http://localhost:8080/Guest/formc.html");
+		obj.add(ob);
+		return obj;
+	}
+}

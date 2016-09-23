@@ -1,0 +1,161 @@
+function login() {
+	
+	var loginObject = {
+  "login": 
+    {
+      "email": document.getElementById('Email').value,
+      "password": document.getElementById('Password').value
+    }
+  
+};
+
+
+alert(JSON.stringify(loginObject));
+send(loginObject);
+	//alert(loginObject);
+	var pocObject = {
+			  "visitorInfo": 
+			    {
+			      "poc": document.getElementById('Email').value
+			    }
+			  
+			};
+	
+//alert(JSON.stringify(pocObject));
+//sendpoc(pocObject);
+}
+
+
+function send(data) {
+
+  $.ajax({
+        url: "http://localhost:8080/Guest/otherService/loginService",
+        type: 'POST',
+        contentType: "application/json",
+        dataType: "text",
+        //crossDomain: true,
+		// headers: {
+  //               "sessionKey": document.cookie
+  //           },
+  		data: JSON.stringify(data),
+
+        success: function (successData) {
+            console.log(successData);
+            //resp = successData;
+        	//alert(successData);
+        	if(successData=="true")
+        	{
+        		//sendpoc(pocObject);
+            window.location = "index.html";
+            //console.log(pocObject);
+            //sendpoc(pocObject);
+        	}
+        	else
+        	{
+        		alert("Wrong");
+        		}
+        	
+        },
+        error: function (errorData) {
+            console.log(errorData);  
+					alert(JSON.stringify(errorData));
+					//alert(errorData); 
+					alert("Login Unsucessful");
+					window.location.reload();
+        }
+    });
+ }
+function sendpoc(datafill) {
+
+  $.ajax({
+        url: "http://localhost:8080/Guest/ReadService/VisitorByPoc",
+        type: 'POST',
+        contentType: "application/json",
+        dataType: "json",
+        //crossDomain: true,
+		// headers: {
+  //               "sessionKey": document.cookie
+  //           },
+  		data: JSON.stringify(datafill),
+
+        success: function (successData) {
+            console.log(successData);
+            //alert(successData.visitor_Info.length);
+            //addContentsToTable(successData);
+        },
+        error: function (errorData) {
+            console.log(errorData);  
+					//alert(JSON.stringify(errorData));
+					//alert(errorData); 
+					alert(" Unsucessful");
+					//window.location.reload();
+        }
+    });
+ }
+
+ function addContentsToTable(datav)
+{
+ 
+ var upcoming = "Upcomming";
+ var completed = "Completed";
+
+  for(i=0; i<datav.visitorInfo.length;i++) {
+    var status = datav.visitorInfo[i].status;
+   // alert(status);
+   
+  // alert(JSON.stringify(data.visitor_Info));
+  if( status === upcoming) {
+    $('#upcoming').append("<tr> <td>" + datav.visitorInfo[i].first_name + "</td>" +
+                          "<td>"+ datav.visitorInfo[i].last_name +"</td>" +
+                          "<td>"+ datav.visitorInfo[i].type +"</td> " +
+                          "<td>"+ datav.visitorInfo[i].org+"</td>" +
+                         "<td>"+ datav.visitorInfo[i].role +"</td> " + 
+                          "<td>"+ datav.visitorInfo[i].mobile_number +"</td> " +
+                          " <td>"+ datav.visitorInfo[i].vid+"</td> " +
+                         " <td>"+ datav.visitorInfo[i].email+"</td> " +
+                         " <td>"+ datav.visitorInfo[i].delegate_to+"</td> " +
+                          "<td>"+ datav.visitorInfo[i].status +"</td> </tr>");
+    
+    }
+		else if(status === completed)
+			{
+				$('#completed').append("<tr> <td>" + datav.visitorInfo[i].first_name + "</td>" +
+                          "<td>"+ datav.visitorInfo[i].last_name +"</td>" +
+                          "<td>"+ datav.visitorInfo[i].type +"</td> " +
+                          "<td>"+ datav.visitorInfo[i].org+"</td>" +
+                         "<td>"+ datav.visitorInfo[i].role +"</td> " + 
+                          "<td>"+ datav.visitorInfo[i].mobile_number +"</td> " +
+                          " <td>"+ datav.visitorInfo[i].vid+"</td> " +
+                         " <td>"+ datav.visitorInfo[i].email+"</td> " +
+                         " <td>"+ datav.visitorInfo[i].delegate_to+"</td> " +
+                          "<td>"+ datav.visitorInfo[i].status +"</td> </tr>");
+    
+			}
+		else
+			{
+				$('#ongoing').append("<tr> <td>" + datav.visitorInfo[i].first_name + "</td>" +
+                          "<td>"+ datav.visitorInfo[i].last_name +"</td>" +
+                          "<td>"+ datav.visitorInfo[i].type +"</td> " +
+                          "<td>"+ datav.visitorInfo[i].org+"</td>" +
+                         "<td>"+ datav.visitorInfo[i].role +"</td> " + 
+                          "<td>"+ datav.visitorInfo[i].mobile_number +"</td> " +
+                          " <td>"+ datav.visitorInfo[i].vid+"</td> " +
+                         " <td>"+ datav.visitorInfo[i].email+"</td> " +
+                         " <td>"+ datav.visitorInfo[i].delegate_to+"</td> " +
+                          "<td>"+ datav.visitorInfo[i].status +"</td> </tr>");
+    
+
+			}
+  }
+}
+
+
+//google sign in api 
+
+ function onSignIn(googleUser) {
+  var profile = googleUser.getBasicProfile();
+  console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+  console.log('Name: ' + profile.getName());
+  console.log('Image URL: ' + profile.getImageUrl());
+  console.log('Email: ' + profile.getEmail());
+}

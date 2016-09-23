@@ -1,0 +1,17 @@
+package com.service;
+
+import javax.ws.rs.*;
+
+import com.incture.SendLink;
+
+@Path("Send")
+public class SendMailService {
+
+	@POST
+	@Path("MailService")
+	String MailService(SendLink obj)
+	{
+		new OtpService().sendOTPEmail( obj.getEmailid(),obj.getUrl());
+		return "false";
+	}
+}

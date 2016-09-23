@@ -1,0 +1,48 @@
+package com.incture;
+
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
+public class LinkGenerator {
+
+	private String Poc;
+	private String Type;//Why We are using Type
+	private String CommanUrl;
+	private String pageid ;
+	private String Status;
+	
+	
+	public String getPageid() {
+		return pageid;
+	}
+	public void setPageid(String pageid) {
+		this.pageid = pageid;
+	}
+	public String getPoc() {
+		return Poc;
+	}
+	public void setPoc(String Poc) {
+		this.Poc = Poc;
+	}
+	public String getType() {
+		return Type;
+	}
+	public void setType(String Type) {
+		this.Type = Type;
+	}
+	
+	public String getCommanUrl() {
+		return CommanUrl;
+	}
+	public void setCommanUrl(String commanUrl) {
+		CommanUrl = commanUrl;
+	}
+	public String getStatus() {
+		return Status;
+	}
+	public void setStatus(String Status) {
+		this.Status = Status;
+	}
+	
+	
+}

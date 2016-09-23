@@ -1,0 +1,222 @@
+package com.service;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Properties;
+
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+
+import com.connect.ConectionDb;
+import com.incture.Otp;
+
+@Path("RandomNumber")
+public class OtpService {
+
+	static Integer Random=5462;
+	/*OtpService()
+	{
+		Random++;
+	}
+	*/
+	@POST
+	@Path("Generate")
+	public void RandomOtpGenerator(Otp obj)
+	{
+		
+		//new OtpService();
+		//Random++;
+		//String num=Random.toString();
+		System.out.println(obj.getMobile_Number()+" "+obj.getEmail());
+		Connection con=ConectionDb.getConnection();
+		try
+		{
+			Statement st=con.createStatement();
+			String findMax="Select max(otp_number) from otp";
+			ResultSet rs=st.executeQuery(findMax);
+			rs.next();
+			Integer otpno=rs.getInt(1)+1;
+			
+			String query="INSERT INTO otp values(?,?,?,?)";
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, obj.getMobile_Number());
+			stmt.setString(2, otpno.toString());
+			stmt.setString(3, "false");
+			stmt.setString(4, obj.getEmail());
+			stmt.executeUpdate();
+			//st.close();
+			
+			st.close();
+			//sentOtpViaSms(otpno.toString(),obj.getMobile_Number());
+			sendOTPEmail(obj.getEmail(),"Your Otp is:"+otpno.toString());
+			
+		}catch(SQLException sql)
+		{
+			sql.printStackTrace();
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		//return "Fail";
+	}
+	
+	
+	@SuppressWarnings("unused")
+	@POST
+	@Path("Verify")
+	public String verifyOtp(Otp obj)
+	{
+		System.out.println(obj.getMobile_Number() + " "+ obj.getotp_number());
+		Connection con=ConectionDb.getConnection();
+		try{
+			//Statement st=con.createStatement();
+				String query="UPDATE otp set Status=? where Mobile_Number=? And otp_number=?";
+				PreparedStatement pr = con.prepareStatement(query);
+				pr = con.prepareStatement(query);
+				pr.setString(1, "true");
+				pr.setString(2, obj.getMobile_Number());
+				pr.setString(3, obj.getotp_number());
+				if(pr.executeUpdate()!=0)
+				{
+					return "true";
+				}
+				else
+					return "false";
+				
+				
+				
+			
+		}catch(SQLException sql)
+		{
+			sql.printStackTrace();
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return "false";
+	}
+
+	@POST
+	@Path("ResendOtp")
+	public String resendOtp(Otp obj)
+	{
+		System.out.println("Resend Otp");
+		Connection con=ConectionDb.getConnection();
+		try{
+			//Statement st=con.createStatement();
+			String query="SELECT * from otp where Mobile_Number=? order by otp_number desc limit 1";
+			PreparedStatement pr = con.prepareStatement(query);
+			pr.setString(1, obj.getMobile_Number());
+			ResultSet rs=pr.executeQuery();
+			//System.out.println(rs.getString(1));
+			if(rs.next())
+			{
+				
+				//return rs.getString(2);
+				//sentOtpViaSms("Your Resend Otp is:"+rs.getString(2), obj.getMobile_Number());
+				sendOTPEmail(obj.getEmail(), "Your Resend Otp is:"+rs.getString(2));
+				return "true";
+			}
+			else
+			{
+				
+				return "false";
+			}
+			
+			
+		}catch(SQLException sql)
+		{
+			sql.printStackTrace();
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return "false";
+	}
+	
+	public void sentOtpViaSms(String Message,String MobileNo) throws Exception
+	{
+		String postData="";
+		String Username ="kapsbulk1";
+		String Password = "Kaptrans*10000";		
+		String SenderID = "KAPMSG";
+		postData += "username=" + Username + "&password=" + Password + "&to=" +
+		MobileNo +"&sender="+ SenderID + "&message=" + "Your Otp is:"+Message;
+		URL url = new URL("http://trans.kapsystem.com/api/web2sms.php?workingkey=%20A18e2a3f84d385bf3d746b56ee864a7ba&to=7406225525&sender=KAPMSG&message=MESSAGE");
+		HttpURLConnection urlconnection = (HttpURLConnection) url.openConnection();
+		urlconnection.setRequestMethod("POST");
+		urlconnection.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+		urlconnection.setDoOutput(true);
+		OutputStreamWriter out = new
+		OutputStreamWriter(urlconnection.getOutputStream());
+		out.write(postData);
+		out.close();
+		BufferedReader in = new BufferedReader( new
+		InputStreamReader(urlconnection.getInputStream()));
+		in.close();
+
+	}
+	public void sendOTPEmail(String emailId, String otp) {
+		// Recipient's email ID needs to be mentioned.
+		String to = emailId;
+
+		// Sender's email ID needs to be mentioned
+		String from = "pankaj.sharma@incture.com";
+		final String username = "pankaj.sharma@incture.com";
+		final String password = "9784261079";// change accordingly
+
+		// Assuming you are sending email through relay.jangosmtp.net
+		String host = "smtp.gmail.com";
+
+		Properties props = new Properties();
+		props.put("mail.smtp.auth", "true");
+		props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.host", host);
+		props.put("mail.smtp.port", "25");
+
+		// Get the Session object.
+		Session session = Session.getInstance(props,
+				new javax.mail.Authenticator() {
+					protected PasswordAuthentication getPasswordAuthentication() {
+						return new PasswordAuthentication(username, password);
+					}
+				});
+
+		try {
+			// Create a default MimeMessage object.
+			Message message = new MimeMessage(session);
+
+			// Set From: header field of the header.
+			message.setFrom(new InternetAddress(from));
+
+			// Set To: header field of the header.
+			message.setRecipients(Message.RecipientType.TO,
+					InternetAddress.parse(to));
+
+			// Set Subject: header field
+			message.setSubject("OTP");
+
+			// Now set the actual message
+			message.setText("Welcome to Atithi::" + otp
+					+ " Please do not share it with anyone.");
+			Transport.send(message);
+		} catch (MessagingException e) {
+			throw new RuntimeException(e);
+		}
+	}
+}
