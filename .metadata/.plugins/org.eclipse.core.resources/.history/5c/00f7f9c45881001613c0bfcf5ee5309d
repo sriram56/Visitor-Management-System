@@ -1,9 +1,0 @@
-package com.incture;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XmlRootElement
-public class SendLink {
-	private String url;
-	private String emailid;
-}
